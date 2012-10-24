@@ -1,20 +1,17 @@
-import sys
-import PyQt4.QtCore as QtCore
-import PyQt4.QtGui as QtGui
+import os, sys
+from PyQt4 import QtCore, QtGui
 
-def createWindow(posX, posY, lenX, lenY, title):
-    w = QtGui.QWidget()
-    w.setGeometry(posX, posY, lenX, lenY)
-    w.setWindowTitle(title)
-    return w
+class Window(QtGui.QMainWindow):
+    def __init__(self):
+        QtGui.QMainWindow.__inin__(self)
+        self.setGeometry(0, 0, 340, 460)
+        self.setWindowTitle('TODO')
+
 
 def main():
     app = QtGui.QApplication(sys.argv)
-    w = createWindow(300, 300, 250, 150, 'simple')
-#    w = QtGui.QWidget()
-#    w.resize(250, 150)
-#    w.setWindowTitle('simple')
-    w.show()
+    window = Window()
+    window.show()
     
     sys.exit(app.exec_())
 
