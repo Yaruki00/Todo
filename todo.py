@@ -23,16 +23,17 @@ class Window(QtGui.QMainWindow):
         # status bar
         self.statusBar().showMessage('ready')
         # action
-        self.exitAction = QtGui.QAction(QtGui.QIcon('exit.png'), 'Exit', self)
-        self.exitAction.setShortcut('Ctrl+Q')
-        self.exitAction.setStatusTip('Exit application')
-        self.exitAction.triggered.connect(self.close)
+        exitAction = QtGui.QAction(QtGui.QIcon('exit.png'), 'Exit', self)
+        exitAction.setShortcut('Ctrl+Q')
+        exitAction.setStatusTip('Exit application')
+        exitAction.triggered.connect(self.close)
         # menu bar
-        self.fileMenu = self.menuBar().addMenu('&File')
-        self.fileMenu.addMenu(QtGui.QIcon('exit.png'), 'Exit')
+        menubar = self.menuBar()
+        menubar.addMenu('&File')
+        menubar.addMenu('&Edit')
         # tool bar
-        self.toolbar = self.addToolBar('Exit')
-        self.toolbar.addAction(self.exitAction)
+        toolbar = self.addToolBar('Exit')
+        toolbar.addAction(exitAction)
 
     def closeEvent(self, event):
         # widget, title, message, button1 | button2, default focus
