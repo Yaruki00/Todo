@@ -42,7 +42,14 @@ class Window(QtGui.QMainWindow):
             else:
                 item.setCheckState(0, QtCore.Qt.Unchecked)
             self.treeWidget.addTopLevelItem(item)
+        self.treeWidget.itemChanged.connect(self.on_treeWidget_itemChanged)
 
+    def on_treeWidget_itemChanged(self, item, column):
+        if item.checkState(0):
+            item.task.done = True
+        else:
+            item.task.done = False
+        todoDB.saveData()
 
     def closeEvent(self, event):
         # widget, title, message, button1 | button2, default focus
