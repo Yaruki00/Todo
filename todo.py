@@ -1,22 +1,20 @@
 import os, sys
 from PyQt4 import QtCore, QtGui
+import todoDB
 
 class Window(QtGui.QMainWindow):
     def __init__(self):
         super(Window, self).__init__()
         # x, y, width, height
-        self.setGeometry(0, 0, 340, 460)
+        self.setGeometry(0, 0, 1060, 690)
         self.setWindowTitle('TODO')
-        # tree view
-        self.treeView = QtGui.QTreeView()
-        self.stdItemModel = QtGui.QStandardItemModel(0, 3)
-        self.stdItemModel.setHeaderData(0, QtCore.Qt.Horizontal, 'Task')
-        self.stdItemModel.setHeaderData(1, QtCore.Qt.Horizontal, 'Data')
-        self.stdItemModel.setHeaderData(2, QtCore.Qt.Horizontal, 'Tags')
-        self.treeView.setModel(self.stdItemModel)
+        # tree widget
+        self.treeWidget = QtGui.QTreeWidget()
+        headerItem = QtGui.QTreeWidgetItem(['Task', 'Date', 'Tags'])
+        self.treeWidget.setHeaderItem(headerItem)
         # layout and central widget
         hbox = QtGui.QHBoxLayout()
-        hbox.addWidget(self.treeView)
+        hbox.addWidget(self.treeWidget)
         self.widget = QtGui.QWidget()
         self.widget.setLayout(hbox)
         self.setCentralWidget(self.widget)
@@ -34,6 +32,17 @@ class Window(QtGui.QMainWindow):
         # tool bar
         toolbar = self.addToolBar('Exit')
         toolbar.addAction(exitAction)
+        # load data from DB and add in tree widget
+        for task in todoDB.Task.query.all():
+            tags = ','.join([t.name for t in task.tags])
+            item = QtGui.QTreeWidgetItem([task.text, str(task.date), tags])
+            item.task = task
+            if task.done:
+                item.setCheckState(0, QtCore.Qt.Checked)
+            else:
+                item.setCheckState(0, QtCore.Qt.Unchecked)
+            self.treeWidget.addTopLevelItem(item)
+
 
     def closeEvent(self, event):
         # widget, title, message, button1 | button2, default focus
@@ -49,6 +58,7 @@ class Window(QtGui.QMainWindow):
             event.ignore()
 
 def main():
+    todoDB.initDB()
     app = QtGui.QApplication(sys.argv)
     window = Window()
     window.show()
