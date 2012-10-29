@@ -8,10 +8,16 @@ class Window(QtGui.QMainWindow):
         # x, y, width, height
         self.setGeometry(0, 0, 1060, 690)
         self.setWindowTitle('TODO')
+        self.setWindowIcon(QtGui.QIcon('icon.png'))
         # tree widget
         self.treeWidget = QtGui.QTreeWidget()
         headerItem = QtGui.QTreeWidgetItem(['Task', 'Date', 'Tags'])
         self.treeWidget.setHeaderItem(headerItem)
+        self.treeWidget.setAllColumnsShowFocus(True)
+        self.treeWidget.setUniformRowHeights(True)
+        self.treeWidget.setSortingEnabled(True)
+        self.treeWidget.setAlternatingRowColors(True)
+        self.treeWidget.setRootIsDecorated(False)
         # layout and central widget
         hbox = QtGui.QHBoxLayout()
         hbox.addWidget(self.treeWidget)
@@ -43,6 +49,8 @@ class Window(QtGui.QMainWindow):
                 item.setCheckState(0, QtCore.Qt.Unchecked)
             self.treeWidget.addTopLevelItem(item)
         self.treeWidget.itemChanged.connect(self.on_treeWidget_itemChanged)
+        for column in range(0, self.treeWidget.columnCount()):
+            self.treeWidget.resizeColumnToContents(column)
 
     def on_treeWidget_itemChanged(self, item, column):
         if item.checkState(0):
