@@ -1,6 +1,6 @@
 import os, sys
 from PyQt4 import QtCore, QtGui
-import todoDB
+import todoDB, editor
 
 class Window(QtGui.QMainWindow):
     def __init__(self):
@@ -18,9 +18,15 @@ class Window(QtGui.QMainWindow):
         self.treeWidget.setSortingEnabled(True)
         self.treeWidget.setAlternatingRowColors(True)
         self.treeWidget.setRootIsDecorated(False)
+        # splitter
+        self.splitter = QtGui.QSplitter()
+        self.splitter.setOrientation(QtCore.Qt.Vertical)
+        self.splitter.addWidget(self.treeWidget)
+        self.editor = editor.Editor(self)
+        self.splitter.addWidget(self.editor)
         # layout and central widget
         hbox = QtGui.QHBoxLayout()
-        hbox.addWidget(self.treeWidget)
+        hbox.addWidget(self.splitter)
         self.widget = QtGui.QWidget()
         self.widget.setLayout(hbox)
         self.setCentralWidget(self.widget)
@@ -31,19 +37,26 @@ class Window(QtGui.QMainWindow):
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(self.close)
+        # edit action
+        self.editAction = QtGui.QAction(QtGui.QIcon('edit.png'), 'Edit', self)
+        self.editAction.setShortcut('Ctrl+E')
+        self.editAction.setStatusTip('Edit selected task')
+        self.editAction.triggered.connect(self.edit)
         # delete action
         self.deleteAction = QtGui.QAction(QtGui.QIcon('delete.png'), 'Delete', self)
-        self.deleteAction.setShortcut('Ctrl+R')
+        self.deleteAction.setShortcut('Ctrl+D')
         self.deleteAction.setStatusTip('Delete selected task')
         self.deleteAction.triggered.connect(self.delete)
         # menu bar
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
         editMenu = menubar.addMenu('&Edit')
+        editMenu.addAction(self.editAction)
         editMenu.addAction(self.deleteAction)
         # tool bar
         toolbar = self.addToolBar('Exit')
         toolbar.addAction(exitAction)
+        toolbar.addAction(self.editAction)
         toolbar.addAction(self.deleteAction)
         # load data from DB and add in tree widget
         for task in todoDB.Task.query.all():
@@ -76,6 +89,12 @@ class Window(QtGui.QMainWindow):
             self.deleteAction.setEnabled(True)
         else:
             self.deleteAction.setEnabled(False)
+
+    def edit(self):
+        selectedItem = self.treeWidget.currentItem()
+        if not selectedItem:
+            return
+        self.editor.edit(selectedItem)
 
     def delete(self):
         selectedItem = self.treeWidget.currentItem()

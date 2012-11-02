@@ -1,6 +1,7 @@
 from PyQt4 import QtCore, QtGui
 import todoDB
 import os, sys
+from datetime import datetime
 
 class Editor(QtGui.QWidget):
     def __init__(self, parent, task=None):
@@ -20,33 +21,75 @@ class Editor(QtGui.QWidget):
         self.tagLabel = QtGui.QLabel('&Task:')
         self.tagLineEdit = QtGui.QLineEdit()
         self.tagLabel.setBuddy(self.tagLineEdit)
+        self.ok = QtGui.QPushButton('ok')
+        self.ok.clicked.connect(self.save)
         # add components to form
         form.addRow(self.taskLabel, self.taskLineEdit)
         form.addRow(None, self.doneCheck)
         form.addRow(self.dateLabel, self.dateTimeEdit)
         form.addRow(self.tagLabel, self.tagLineEdit)
+        form.addRow(None, self.ok)
         vbox.addLayout(form)
         self.setLayout(vbox)
         # define tab order
         self.setTabOrder(self.taskLabel, self.doneCheck)
         self.setTabOrder(self.doneCheck, self.dateLabel)
         self.setTabOrder(self.dateLabel, self.tagLabel)
-        self.setTabOrder(self.tagLabel, self.taskLabel)
+        self.setTabOrder(self.tagLabel, self.ok)
         # init item
         self.item = None
+        # hide
+        self.hide()
+
+    def finish(self):
+        self.item.text = self.taskLineEdit.text()
+        self.item.date = self.dateTimeEdit.dateTime()
+        self.item.done = self.doneCheck.checkState()
 
     def edit(self, item):
         self.item = item
         self.taskLineEdit.setText(self.item.task.text)
-        self.doneCheck.setChecked(self.item.task.done)
+        self.doneCheck.setCheckState(self.item.task.done)
         dt = self.item.task.date
         if dt:
             self.dateTimeEdit.setDate(QtCore.QDate(dt.year, dt.month, dt.day))
             self.dateTimeEdit.setTime(QtCore.QTime(dt.hour, dt.minute))
         else:
-            self.dateTimeEdit.setDateTime(QtCore.QTime())
+            self.dateTimeEdit.setDateTime(QtCore.QDateTime())
         self.tagLineEdit.setText(','.join(t.name for t in self.item.task.tags))
         self.show()
+
+    def save(self):
+        if self.item == None:
+            return
+        d = self.dateTimeEdit.date()
+        t = self.dateTimeEdit.time()
+        self.item.task.date = datetime(
+            d.year(),
+            d.month(),
+            d.day(),
+            t.hour(),
+            t.minute()
+        )
+        self.item.task.text = unicode(self.taskLineEdit.text())
+        if self.doneCheck.checkState == QtCore.Qt.Checked:
+            self.item.task.done = True
+        else:
+            self.item.task.done = False
+        tags = [s.strip() for s in unicode(self.tagLineEdit.text()).split(',')]
+        self.item.task.tags = []
+        for tag in tags:
+            dbTag = todoDB.Tag.get_by(name = tag)
+            if dbTag is None:
+                self.item.task.tags.append(todoDB.Tag(name=tag))
+            else:
+                self.item.task.tags.append(dbTag)
+            self.item.setText(0, self.item.task.text)
+            self.item.setText(1, str(self.item.task.date))
+            self.item.setText(2, u','.join(t.name for t in self.item.task.tags))
+            self.item.setCheckState(0, self.doneCheck.checkState())
+            todoDB.saveData()
+            self.hide()
 
 def main():
     app = QtGui.QApplication(sys.argv)
