@@ -37,6 +37,11 @@ class Window(QtGui.QMainWindow):
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(self.close)
+        # new action
+        self.newAction = QtGui.QAction(QtGui.QIcon('new.png'), 'New', self)
+        self.newAction.setShortcut('Ctrl+N')
+        self.newAction.setStatusTip('Add new task')
+        self.newAction.triggered.connect(self.new)
         # edit action
         self.editAction = QtGui.QAction(QtGui.QIcon('edit.png'), 'Edit', self)
         self.editAction.setShortcut('Ctrl+E')
@@ -51,11 +56,13 @@ class Window(QtGui.QMainWindow):
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
         editMenu = menubar.addMenu('&Edit')
+        editMenu.addAction(self.newAction)
         editMenu.addAction(self.editAction)
         editMenu.addAction(self.deleteAction)
         # tool bar
         toolbar = self.addToolBar('Exit')
         toolbar.addAction(exitAction)
+        toolbar.addAction(self.newAction)
         toolbar.addAction(self.editAction)
         toolbar.addAction(self.deleteAction)
         # load data from DB and add in tree widget
@@ -83,12 +90,24 @@ class Window(QtGui.QMainWindow):
         else:
             item.task.done = False
         todoDB.saveData()
+        for column in range(0, self.treeWidget.columnCount()):
+            self.treeWidget.resizeColumnToContents(column)
 
     def on_treeWidget_currentItemChanged(self, current, previous):
         if current:
             self.deleteAction.setEnabled(True)
         else:
             self.deleteAction.setEnabled(False)
+
+    def new(self):
+        task = todoDB.Task(text=u"New Task")
+        item = QtGui.QTreeWidgetItem([task.text, str(task.date), ""])
+        item.setCheckState(0, QtCore.Qt.Unchecked)
+        item.task = task
+        self.treeWidget.addTopLevelItem(item)
+        self.treeWidget.setCurrentItem(item)
+        todoDB.saveData()
+        self.editor.edit(item)
 
     def edit(self):
         selectedItem = self.treeWidget.currentItem()
