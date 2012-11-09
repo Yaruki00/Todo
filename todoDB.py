@@ -50,6 +50,7 @@ def main():
     tarea2 = Task(text = u"Buy chili", tags = [red])
     tarea3 = Task(text = u"Buy lettuce", tags = [green])
     tarea4 = Task(text = u"Buy strawberries", tags = [red, green])
+    tarea5 = Task(text = u"child of chili", parent = u"Buy chili", tags = [red])
     saveData()
 
     print "Green Tasks:"
