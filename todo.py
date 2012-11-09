@@ -17,7 +17,6 @@ class Window(QtGui.QMainWindow):
         self.treeWidget.setUniformRowHeights(True)
         self.treeWidget.setSortingEnabled(True)
         self.treeWidget.setAlternatingRowColors(True)
-        self.treeWidget.setRootIsDecorated(False)
         # splitter
         self.splitter = QtGui.QSplitter()
         self.splitter.setOrientation(QtCore.Qt.Vertical)
@@ -82,7 +81,7 @@ class Window(QtGui.QMainWindow):
                 childItemList.append(item)
         for topItem in topItemList:
             for childItem in childItemList:
-                if topItem.task.text == childItem.parent:
+                if topItem.task.text == childItem.task.parent:
                     topItem.addChild(childItem)
         self.treeWidget.addTopLevelItems(topItemList)
         # connect
