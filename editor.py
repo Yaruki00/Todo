@@ -13,6 +13,11 @@ class Editor(QtGui.QWidget):
         self.taskLabel = QtGui.QLabel('&Task:')
         self.taskLineEdit = QtGui.QLineEdit()
         self.taskLabel.setBuddy(self.taskLineEdit)
+        self.parentCheck = QtGui.QCheckBox('&have parent')
+        self.parentCheck.stateChanged.connect(self.parentCheckChanged)
+        self.parentLabel = QtGui.QLabel('&Parent:')
+        self.selectParent = QtGui.QComboBox()
+        self.parentLabel.setBuddy(self.selectParent)
         self.doneCheck = QtGui.QCheckBox('&Finished')
         self.dateLabel = QtGui.QLabel('&Due Date:')
         self.dateTimeEdit = QtGui.QDateTimeEdit()
@@ -28,6 +33,8 @@ class Editor(QtGui.QWidget):
         # add components to form
         form.addRow(self.taskLabel, self.taskLineEdit)
         form.addRow(None, self.doneCheck)
+        form.addRow(None, self.parentCheck)
+        form.addRow(self.parentLabel, self.selectParent)
         form.addRow(self.dateLabel, self.dateTimeEdit)
         form.addRow(self.tagLabel, self.tagLineEdit)
         form.addRow(self.ok, self.canb)
@@ -44,10 +51,26 @@ class Editor(QtGui.QWidget):
         # hide
         self.hide()
 
-    def edit(self, item):
+    def parentCheckChanged(self, state):
+        if state == QtCore.Qt.Checked:
+            self.selectParent.setEnabled(True)
+        else:
+            self.selectParent.setEnabled(False)
+
+    def edit(self, item, topItems):
         self.item = item
         self.taskLineEdit.setText(self.item.task.text)
         self.doneCheck.setCheckState(self.item.task.done)
+        self.selectParent.clear()
+        for topItem in topItems:
+            self.selectParent.addItem(topItem.task.text)
+        if item.task.parent:
+            self.parentCheck.setCheckState(QtCore.Qt.Checked)
+            for i in range(0, len(topItems)):
+                if topItems[i] == item.task.parent:
+                    self.selectParent.setCurrentItem(i)
+        else:
+            self.selectParent.setEnabled(False)
         dt = self.item.task.date
         if dt:
             self.dateTimeEdit.setDate(QtCore.QDate(dt.year, dt.month, dt.day))

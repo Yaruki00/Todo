@@ -109,6 +109,9 @@ class Window(QtGui.QMainWindow):
             self.deleteAction.setEnabled(False)
 
     def new(self):
+        topItems = []
+        for i in range(0, self.treeWidget.topLevelItemCount()):
+            topItems.append(self.treeWidget.topLevelItem(i))
         task = todoDB.Task(text=u"New Task")
         item = QtGui.QTreeWidgetItem([task.text, str(task.date), ""])
         item.setCheckState(0, QtCore.Qt.Unchecked)
@@ -116,13 +119,16 @@ class Window(QtGui.QMainWindow):
         self.treeWidget.addTopLevelItem(item)
         self.treeWidget.setCurrentItem(item)
         todoDB.saveData()
-        self.editor.edit(item)
+        self.editor.edit(item, topItems)
 
     def edit(self):
         selectedItem = self.treeWidget.currentItem()
         if not selectedItem:
             return
-        self.editor.edit(selectedItem)
+        topItems = []
+        for i in range(0, self.treeWidget.topLevelItemCount()):
+            topItems.append(self.treeWidget.topLevelItem(i))
+        self.editor.edit(selectedItem, topItems)
 
     def delete(self):
         selectedItem = self.treeWidget.currentItem()
