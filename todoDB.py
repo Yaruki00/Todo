@@ -9,6 +9,7 @@ class Task(Entity):
     text = Field(Unicode, required = True)
     date = Field(DateTime, default = None, required = False)
     done = Field(Boolean, default = False, required = True)
+    parent = Field(Unicode, default = None, required = False)
     tags = ManyToMany("Tag")
 
     def __repr__(self):

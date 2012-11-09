@@ -18,7 +18,7 @@ class Editor(QtGui.QWidget):
         self.dateTimeEdit = QtGui.QDateTimeEdit()
         self.dateTimeEdit.setCalendarPopup(True)
         self.dateLabel.setBuddy(self.dateTimeEdit)
-        self.tagLabel = QtGui.QLabel('&Task:')
+        self.tagLabel = QtGui.QLabel('&Tag:')
         self.tagLineEdit = QtGui.QLineEdit()
         self.tagLabel.setBuddy(self.tagLineEdit)
         self.ok = QtGui.QPushButton('ok')
