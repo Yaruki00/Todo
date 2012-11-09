@@ -66,6 +66,8 @@ class Window(QtGui.QMainWindow):
         toolbar.addAction(self.editAction)
         toolbar.addAction(self.deleteAction)
         # load data from DB and add in tree widget
+        topItemList = []
+        childItemList = []
         for task in todoDB.Task.query.all():
             tags = ','.join([t.name for t in task.tags])
             item = QtGui.QTreeWidgetItem([task.text, str(task.date), tags])
@@ -74,7 +76,15 @@ class Window(QtGui.QMainWindow):
                 item.setCheckState(0, QtCore.Qt.Checked)
             else:
                 item.setCheckState(0, QtCore.Qt.Unchecked)
-            self.treeWidget.addTopLevelItem(item)
+            if item.task.parent is None:
+                topItemList.append(item)
+            else:
+                childItemList.append(item)
+        for topItem in topItemList:
+            for childItem in childItemList:
+                if topItem.task.text == childItem.parent:
+                    topItem.addChild(childItem)
+        self.treeWidget.addTopLevelItems(topItemList)
         # connect
         self.treeWidget.itemChanged.connect(self.on_treeWidget_itemChanged)
         self.treeWidget.currentItemChanged.connect(self.on_treeWidget_currentItemChanged)
