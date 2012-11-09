@@ -67,8 +67,8 @@ class Editor(QtGui.QWidget):
         if item.task.parent:
             self.parentCheck.setCheckState(QtCore.Qt.Checked)
             for i in range(0, len(topItems)):
-                if topItems[i] == item.task.parent:
-                    self.selectParent.setCurrentItem(i)
+                if topItems[i].task.text == item.task.parent:
+                    self.selectParent.setCurrentIndex(i)
         else:
             self.selectParent.setEnabled(False)
         dt = self.item.task.date
@@ -93,10 +93,12 @@ class Editor(QtGui.QWidget):
             t.minute()
         )
         self.item.task.text = unicode(self.taskLineEdit.text())
-        if self.doneCheck.checkState == QtCore.Qt.Checked:
+        if self.doneCheck.checkState() == QtCore.Qt.Checked:
             self.item.task.done = True
         else:
             self.item.task.done = False
+        if self.parentCheck.checkState() == QtCore.Qt.Checked:
+            self.item.task.parent = self.selectParent.currentText().__str__()
         tags = [s.strip() for s in unicode(self.tagLineEdit.text()).split(',')]
         self.item.task.tags = []
         for tag in tags:
@@ -105,12 +107,12 @@ class Editor(QtGui.QWidget):
                 self.item.task.tags.append(todoDB.Tag(name=tag))
             else:
                 self.item.task.tags.append(dbTag)
-            self.item.setText(0, self.item.task.text)
-            self.item.setText(1, str(self.item.task.date))
-            self.item.setText(2, u','.join(t.name for t in self.item.task.tags))
-            self.item.setCheckState(0, self.doneCheck.checkState())
-            todoDB.saveData()
-            self.hide()
+        self.item.setText(0, self.item.task.text)
+        self.item.setText(1, str(self.item.task.date))
+        self.item.setText(2, u','.join(t.name for t in self.item.task.tags))
+        self.item.setCheckState(0, self.doneCheck.checkState())
+        todoDB.saveData()
+        self.hide()
 
     def cancel(self):
         self.hide()
