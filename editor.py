@@ -23,12 +23,14 @@ class Editor(QtGui.QWidget):
         self.tagLabel.setBuddy(self.tagLineEdit)
         self.ok = QtGui.QPushButton('ok')
         self.ok.clicked.connect(self.save)
+        self.canb = QtGui.QPushButton('calcel')
+        self.canb.clicked.connect(self.cancel)
         # add components to form
         form.addRow(self.taskLabel, self.taskLineEdit)
         form.addRow(None, self.doneCheck)
         form.addRow(self.dateLabel, self.dateTimeEdit)
         form.addRow(self.tagLabel, self.tagLineEdit)
-        form.addRow(None, self.ok)
+        form.addRow(self.ok, self.canb)
         vbox.addLayout(form)
         self.setLayout(vbox)
         # define tab order
@@ -36,15 +38,11 @@ class Editor(QtGui.QWidget):
         self.setTabOrder(self.doneCheck, self.dateLabel)
         self.setTabOrder(self.dateLabel, self.tagLabel)
         self.setTabOrder(self.tagLabel, self.ok)
+        self.setTabOrder(self.ok, self.canb)
         # init item
         self.item = None
         # hide
         self.hide()
-
-    def finish(self):
-        self.item.text = self.taskLineEdit.text()
-        self.item.date = self.dateTimeEdit.dateTime()
-        self.item.done = self.doneCheck.checkState()
 
     def edit(self, item):
         self.item = item
@@ -90,6 +88,9 @@ class Editor(QtGui.QWidget):
             self.item.setCheckState(0, self.doneCheck.checkState())
             todoDB.saveData()
             self.hide()
+
+    def cancel(self):
+        self.hide()
 
 def main():
     app = QtGui.QApplication(sys.argv)
