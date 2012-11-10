@@ -17,6 +17,8 @@ class Window(QtGui.QMainWindow):
         self.treeWidget.setUniformRowHeights(True)
         self.treeWidget.setSortingEnabled(True)
         self.treeWidget.setAlternatingRowColors(True)
+        #expandItems
+        self.expandItems = []
         # splitter
         self.splitter = QtGui.QSplitter()
         self.splitter.setOrientation(QtCore.Qt.Vertical)
@@ -69,6 +71,8 @@ class Window(QtGui.QMainWindow):
         # connect
         self.treeWidget.itemChanged.connect(self.on_treeWidget_itemChanged)
         self.treeWidget.currentItemChanged.connect(self.on_treeWidget_currentItemChanged)
+        self.treeWidget.itemExpanded.connect(self.on_treeWidget_itemExpanded)
+        self.treeWidget.itemCollapsed.connect(self.on_treeWidget_itemCollapsed)
         # fix width
         for column in range(0, self.treeWidget.columnCount()):
             self.treeWidget.resizeColumnToContents(column)
@@ -96,6 +100,10 @@ class Window(QtGui.QMainWindow):
                 if topItem.task.text == childItem.task.parent:
                     topItem.addChild(childItem)
         self.treeWidget.addTopLevelItems(topItemList)
+        for i in range(0, self.treeWidget.topLevelItemCount()):
+            for item in self.expandItems:
+                if self.treeWidget.topLevelItem(i).task.text == item.task.text:
+                    self.treeWidget.expandItem(self.treeWidget.topLevelItem(i))
 
     def on_treeWidget_itemChanged(self, item, column):
         if item.checkState(0):
@@ -111,6 +119,14 @@ class Window(QtGui.QMainWindow):
             self.deleteAction.setEnabled(True)
         else:
             self.deleteAction.setEnabled(False)
+
+    def on_treeWidget_itemExpanded(self, item):
+        self.expandItems.append(item)
+        for column in range(0, self.treeWidget.columnCount()):
+            self.treeWidget.resizeColumnToContents(column)
+
+    def on_treeWidget_itemCollapsed(self, item):
+        self.expandItems.remove(item)
 
     def new(self):
         topItems = []
