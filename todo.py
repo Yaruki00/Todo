@@ -145,6 +145,8 @@ class Window(QtGui.QMainWindow):
                                    QtGui.QMessageBox.No,
                                    QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
+            for i in range(0, selectedItem.childCount()):
+                selectedItem.child(i).task.delete()
             selectedItem.task.delete()
             todoDB.saveData()
             self.treeWidget.takeTopLevelItem(
