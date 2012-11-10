@@ -116,8 +116,10 @@ class Window(QtGui.QMainWindow):
 
     def on_treeWidget_currentItemChanged(self, current, previous):
         if current:
+            self.editAction.setEnabled(True)
             self.deleteAction.setEnabled(True)
         else:
+            self.editAction.setEnabled(False)
             self.deleteAction.setEnabled(False)
 
     def on_treeWidget_itemExpanded(self, item):
