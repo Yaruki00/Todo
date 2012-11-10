@@ -65,6 +65,18 @@ class Window(QtGui.QMainWindow):
         toolbar.addAction(self.editAction)
         toolbar.addAction(self.deleteAction)
         # load data from DB and add in tree widget
+        self.loadData()
+        # connect
+        self.treeWidget.itemChanged.connect(self.on_treeWidget_itemChanged)
+        self.treeWidget.currentItemChanged.connect(self.on_treeWidget_currentItemChanged)
+        # fix width
+        for column in range(0, self.treeWidget.columnCount()):
+            self.treeWidget.resizeColumnToContents(column)
+        # set current item
+        self.treeWidget.setCurrentItem(None)
+
+    def loadData(self):
+        self.treeWidget.clear()
         topItemList = []
         childItemList = []
         for task in todoDB.Task.query.all():
@@ -84,14 +96,6 @@ class Window(QtGui.QMainWindow):
                 if topItem.task.text == childItem.task.parent:
                     topItem.addChild(childItem)
         self.treeWidget.addTopLevelItems(topItemList)
-        # connect
-        self.treeWidget.itemChanged.connect(self.on_treeWidget_itemChanged)
-        self.treeWidget.currentItemChanged.connect(self.on_treeWidget_currentItemChanged)
-        # fix width
-        for column in range(0, self.treeWidget.columnCount()):
-            self.treeWidget.resizeColumnToContents(column)
-        # set current item
-        self.treeWidget.setCurrentItem(None)
 
     def on_treeWidget_itemChanged(self, item, column):
         if item.checkState(0):

@@ -7,6 +7,7 @@ class Editor(QtGui.QWidget):
     def __init__(self, parent, task=None):
         super(Editor, self).__init__()
         self.setGeometry(0, 0, 345, 270)
+        self.parent = parent
         vbox = QtGui.QVBoxLayout()
         form = QtGui.QFormLayout()
         # form components
@@ -113,6 +114,7 @@ class Editor(QtGui.QWidget):
         self.item.setCheckState(0, self.doneCheck.checkState())
         todoDB.saveData()
         self.hide()
+        self.parent.loadData()
 
     def cancel(self):
         self.hide()
