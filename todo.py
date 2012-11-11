@@ -80,9 +80,11 @@ class Window(QtGui.QMainWindow):
         self.treeWidget.setCurrentItem(None)
 
     def loadData(self):
+        # init treeWidget
         self.treeWidget.clear()
         topItemList = []
         childItemList = []
+        # load data from DB and create treeWidgetItem
         for task in todoDB.Task.query.all():
             tags = ','.join([t.name for t in task.tags])
             item = QtGui.QTreeWidgetItem([task.text, str(task.date), tags])
@@ -100,19 +102,19 @@ class Window(QtGui.QMainWindow):
                 if topItem.task.text == childItem.task.parent:
                     topItem.addChild(childItem)
         self.treeWidget.addTopLevelItems(topItemList)
+        # exxpand item
         for i in range(0, self.treeWidget.topLevelItemCount()):
             for item in self.expandItems:
                 if self.treeWidget.topLevelItem(i).task.text == item.task.text:
                     self.treeWidget.expandItem(self.treeWidget.topLevelItem(i))
 
     def on_treeWidget_itemChanged(self, item, column):
+        # finished?
         if item.checkState(0):
             item.task.done = True
         else:
             item.task.done = False
         todoDB.saveData()
-        for column in range(0, self.treeWidget.columnCount()):
-            self.treeWidget.resizeColumnToContents(column)
 
     def on_treeWidget_currentItemChanged(self, current, previous):
         if current:
@@ -124,6 +126,7 @@ class Window(QtGui.QMainWindow):
 
     def on_treeWidget_itemExpanded(self, item):
         self.expandItems.append(item)
+        # fix width
         for column in range(0, self.treeWidget.columnCount()):
             self.treeWidget.resizeColumnToContents(column)
 
@@ -131,13 +134,16 @@ class Window(QtGui.QMainWindow):
         self.expandItems.remove(item)
 
     def new(self):
+        # collect top items
         topItems = []
         for i in range(0, self.treeWidget.topLevelItemCount()):
             topItems.append(self.treeWidget.topLevelItem(i))
+        # create new task
         task = todoDB.Task(text=u"New Task")
         item = QtGui.QTreeWidgetItem([task.text, str(task.date), ""])
         item.setCheckState(0, QtCore.Qt.Unchecked)
         item.task = task
+        # add new item to treeWidget
         self.treeWidget.addTopLevelItem(item)
         self.treeWidget.setCurrentItem(item)
         todoDB.saveData()
@@ -147,6 +153,7 @@ class Window(QtGui.QMainWindow):
         selectedItem = self.treeWidget.currentItem()
         if not selectedItem:
             return
+        # collect top items
         topItems = []
         for i in range(0, self.treeWidget.topLevelItemCount()):
             topItems.append(self.treeWidget.topLevelItem(i))
@@ -163,10 +170,13 @@ class Window(QtGui.QMainWindow):
                                    QtGui.QMessageBox.No,
                                    QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
+            # delete all children
             for i in range(0, selectedItem.childCount()):
                 selectedItem.child(i).task.delete()
+            # delete itself
             selectedItem.task.delete()
             todoDB.saveData()
+            # update UI
             if selectedItem.parent():
                 selectedItem.parent().removeChild(selectedItem)
             else:
