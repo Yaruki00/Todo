@@ -115,6 +115,9 @@ class Window(QtGui.QMainWindow):
         else:
             item.task.done = False
         todoDB.saveData()
+        # fix width
+        for column in range(0, self.treeWidget.columnCount()):
+            self.treeWidget.resizeColumnToContents(column)
 
     def on_treeWidget_currentItemChanged(self, current, previous):
         if current:
@@ -147,7 +150,7 @@ class Window(QtGui.QMainWindow):
         self.treeWidget.addTopLevelItem(item)
         self.treeWidget.setCurrentItem(item)
         todoDB.saveData()
-        self.editor.edit(item, topItems)
+        self.editor.edit(item, topItems, True)
 
     def edit(self):
         selectedItem = self.treeWidget.currentItem()

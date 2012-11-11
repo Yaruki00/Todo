@@ -49,6 +49,8 @@ class Editor(QtGui.QWidget):
         self.setTabOrder(self.ok, self.canb)
         # init item
         self.item = None
+        # init mode
+        self.new = False
         # hide
         self.hide()
 
@@ -58,7 +60,8 @@ class Editor(QtGui.QWidget):
         else:
             self.selectParent.setEnabled(False)
 
-    def edit(self, item, topItems):
+    def edit(self, item, topItems, new=False):
+        self.new = new
         self.item = item
         self.taskLineEdit.setText(self.item.task.text)
         self.doneCheck.setCheckState(self.item.task.done)
@@ -72,6 +75,7 @@ class Editor(QtGui.QWidget):
                     self.selectParent.setCurrentIndex(i)
         else:
             self.selectParent.setEnabled(False)
+            self.parentCheck.setCheckState(QtCore.Qt.Unchecked)
         dt = self.item.task.date
         if dt:
             self.dateTimeEdit.setDate(QtCore.QDate(dt.year, dt.month, dt.day))
@@ -117,7 +121,11 @@ class Editor(QtGui.QWidget):
         self.parent.loadData()
 
     def cancel(self):
+        if self.new:
+            self.item.task.delete()
+            todoDB.saveData()
         self.hide()
+        self.parent.loadData()
 
 def main():
     app = QtGui.QApplication(sys.argv)
