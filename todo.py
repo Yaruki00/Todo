@@ -167,8 +167,10 @@ class Window(QtGui.QMainWindow):
                 selectedItem.child(i).task.delete()
             selectedItem.task.delete()
             todoDB.saveData()
-            self.treeWidget.takeTopLevelItem(
-                self.treeWidget.indexOfTopLevelItem(selectedItem))
+            if selectedItem.parent():
+                selectedItem.parent().removeChild(selectedItem)
+            else:
+                self.treeWidget.takeTopLevelItem(self.treeWidget.indexOfTopLevelItem(selectedItem))
 
     def closeEvent(self, event):
         # widget, title, message, button1 | button2, default focus
